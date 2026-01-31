@@ -9,3 +9,4 @@ streamlit
 
 # Optional (for notebooks/tests)
 jupyter
+wikipedia

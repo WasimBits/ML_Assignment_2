@@ -1,16 +1,16 @@
+
 """
 train.py
 ---------------------------------
-Goal is to implements a full training pipeline for the assignment dataset.
-
-This script does the following:
-- Loads the UCI Breast Cancer Wisconsin dataset (meets >=12 features and >=500 instances)
+Purose: Module implementing the training pipeline for multiple classifiers.
+- Loads the UCI Breast Cancer Wisconsin dataset (features >=12 and instances >=500)
 - Splits the data into train/test sets
 - Scales features using `StandardScaler`
 - Trains six classifiers: Logistic Regression, Decision Tree, KNN, GaussianNB,
   RandomForest, and XGBoost
 - Evaluates each model using Accuracy, AUC, Precision, Recall, F1, and MCC
 - Saves trained models and a metrics CSV into the `model/` directory
+
 """
 
 import os
@@ -52,6 +52,8 @@ except Exception:
 def load_data() -> Tuple[np.ndarray, np.ndarray, list]:
     """Load the Breast Cancer dataset from scikit-learn.
 
+    This dataset is a good fit for the assignment: 30 features and 569 instances.
+    Returns feature matrix X, target vector y, and feature names list.
     """
     data = load_breast_cancer()
     X = data.data
@@ -60,7 +62,7 @@ def load_data() -> Tuple[np.ndarray, np.ndarray, list]:
     return X, y, feature_names
 
 
-def preprocess(X: np.ndarray, y: np.ndarray, test_size: float = 0.2, random_state: int = 42):
+def preprocess(X: np.ndarray, y: np.ndarray, test_size: float = 0.20, random_state: int = 42):
     """Split data and scale features using StandardScaler.
 
     Returns: X_train, X_test, y_train, y_test, scaler
@@ -143,10 +145,27 @@ def train_and_save_models(save_dir: str = "model") -> pd.DataFrame:
 
     # Load and preprocess data
     X, y, feature_names = load_data()
-    X_train, X_test, y_train, y_test, scaler = preprocess(X, y)
-
+    
+    # Split data first to get indices
+    X_train, X_test_unscaled, y_train, y_test = train_test_split(
+        X, y, test_size=0.15, random_state=42, stratify=y
+    )
+    
+    # Scale the training and test data
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.transform(X_test_unscaled)
+    
     # Save scaler for later use in deployment
     dump(scaler, os.path.join(save_dir, "scaler.joblib"))
+
+    # Save test data as CSV file (UNSCALED original features with target)
+    test_data_df = pd.DataFrame(X_test_unscaled, columns=feature_names)
+    test_data_df['target'] = y_test
+    test_data_csv = os.path.join("data", "test_data.csv")
+    os.makedirs("data", exist_ok=True)
+    test_data_df.to_csv(test_data_csv, index=False)
+    print(f"Saved test data to {test_data_csv}")
 
     # Discover model modules via `model.MODEL_MODULES` mapping and import them.
     results = []

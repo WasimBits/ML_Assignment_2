@@ -1,7 +1,7 @@
 """
 streamlit_app.py
 ---------------------------------
-Simple Streamlit app for interactive demo of trained models.
+This is a simple Streamlit app for interactive demo of trained models.
 
 Features:
 - Loads feature names and default values from the Breast Cancer dataset

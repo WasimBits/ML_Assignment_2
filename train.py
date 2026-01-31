@@ -1,7 +1,7 @@
 """
 train.py
 ---------------------------------
-Implements a full training pipeline for the assignment dataset.
+Goal is to implements a full training pipeline for the assignment dataset.
 
 This script does the following:
 - Loads the UCI Breast Cancer Wisconsin dataset (meets >=12 features and >=500 instances)
@@ -11,8 +11,6 @@ This script does the following:
   RandomForest, and XGBoost
 - Evaluates each model using Accuracy, AUC, Precision, Recall, F1, and MCC
 - Saves trained models and a metrics CSV into the `model/` directory
-
-The code is heavily commented to explain each step (as requested in the assignment).
 """
 
 import os
@@ -54,8 +52,6 @@ except Exception:
 def load_data() -> Tuple[np.ndarray, np.ndarray, list]:
     """Load the Breast Cancer dataset from scikit-learn.
 
-    This dataset is a good fit for the assignment: 30 features and 569 instances.
-    Returns feature matrix X, target vector y, and feature names list.
     """
     data = load_breast_cancer()
     X = data.data

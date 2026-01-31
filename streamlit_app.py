@@ -120,6 +120,16 @@ def main():
     st.sidebar.markdown("---")
     st.sidebar.write("Modify feature values below and press **Predict**")
 
+    # Quick download: sample test CSV to try the app or to upload during testing
+    test_csv_path = os.path.join("data", "test_data.csv")
+    if os.path.exists(test_csv_path):
+        with open(test_csv_path, "rb") as f:
+            csv_bytes = f.read()
+        st.sidebar.download_button("Download sample test data (.csv)", data=csv_bytes, file_name="test_data.csv", mime="text/csv")
+        st.sidebar.write("Or find `data/test_data.csv` in the repository.")
+    else:
+        st.sidebar.info("No `data/test_data.csv` found in the repository. Add a CSV to `data/` to enable quick downloads.")
+
     # Build feature inputs in the main area using sliders (or number_input for wide ranges)
     st.header("Input features")
     inputs = []

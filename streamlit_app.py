@@ -106,7 +106,7 @@ def main():
     st.markdown("""
         <div class="header-section">
             <h1>🔬 Breast Cancer Detection - ML Model</h1>
-            <p><strong>Student ID:</strong> 2025AA05133 | <strong>Name:</strong> Wasim Raza</p>
+            <p><strong>Student ID:</strong> 2024DC04121 | <strong>Name:</strong> Wasim Raza</p>
             <p><strong>Dataset:</strong> UCI Breast Cancer Wisconsin | <strong>Samples:</strong> 569 | <strong>Features:</strong> 30</p>
         </div>
     """, unsafe_allow_html=True)
@@ -143,6 +143,28 @@ def main():
     st.sidebar.markdown("---")
     st.sidebar.markdown("### 📋 Instructions")
     st.sidebar.info("👇 Use the sections below to:\n\n1. **Evaluate Models** - Upload test data and compare model performance\n\n2. **Make Predictions** - Enter feature values to predict individual cases")
+
+    # Model Overview cards in the main area
+    st.markdown("### Model Overview")
+    overview_col1, overview_col2, overview_col3, overview_col4 = st.columns([1.5, 1, 1, 1])
+    if not metrics_df.empty and model_choice in metrics_df["Model"].values:
+        row = metrics_df[metrics_df["Model"] == model_choice].iloc[0]
+        overview_col1.metric("Model", model_choice)
+        overview_col2.metric("Accuracy", f"{row['Accuracy']:.4f}")
+        # Handle AUC possibly NaN
+        try:
+            auc_val = float(row.get('AUC', float('nan')))
+            overview_col3.metric("AUC", f"{auc_val:.4f}")
+        except Exception:
+            overview_col3.metric("AUC", "-")
+        overview_col4.metric("F1", f"{row['F1']:.4f}")
+    else:
+        overview_col1.metric("Model", model_choice)
+        overview_col2.metric("Accuracy", "-")
+        overview_col3.metric("AUC", "-")
+        overview_col4.metric("F1", "-")
+
+    st.markdown("---")
 
     # Model Evaluation and Test Data Section with Tabs
     tab1, tab2 = st.tabs(["🧪 Model Evaluation", "🎯 Single Prediction"])
@@ -247,7 +269,31 @@ def main():
                             st.pyplot(fig, use_container_width=True)
                         
                         st.success(f"✅ Evaluation complete for {selected_model}")
-                        
+
+                        # Prepare downloadable predictions CSV
+                        try:
+                            result_df = test_data.copy()
+                            result_df['predicted'] = y_pred
+                            try:
+                                y_proba_eval = model.predict_proba(X_test)
+                                if y_proba_eval.shape[1] > 1:
+                                    result_df['proba_pos'] = y_proba_eval[:, 1]
+                                else:
+                                    result_df['proba_pos'] = y_proba_eval[:, 0]
+                            except Exception:
+                                result_df['proba_pos'] = None
+
+                            csv_bytes = result_df.to_csv(index=False).encode('utf-8')
+                            st.download_button(
+                                "📥 Download predictions (CSV)",
+                                data=csv_bytes,
+                                file_name=f"{selected_model}_predictions.csv",
+                                mime='text/csv',
+                                use_container_width=True
+                            )
+                        except Exception as e:
+                            st.error(f"Could not prepare download: {e}")
+
                     except FileNotFoundError as e:
                         st.error(f"❌ Model not found: {str(e)}")
                     except Exception as e:

@@ -141,8 +141,17 @@ def main():
                     target_col.metric(col_name, f"{row[col_name]:.4f}")
     
     st.sidebar.markdown("---")
-    st.sidebar.markdown("### 📋 Instructions")
-    st.sidebar.info("👇 Use the sections below to:\n\n1. **Evaluate Models** - Upload test data and compare model performance\n\n2. **Make Predictions** - Enter feature values to predict individual cases")
+    st.sidebar.markdown("### 📋 Quick Start")
+    st.sidebar.info(
+        """**Get started:**
+
+• **Model Evaluation** — Upload a test CSV (last column = target) to evaluate models on many samples.
+• **Single Prediction** — Manually set feature values and predict a single case.
+• **Tip:** Use the **Download sample test data** button in *Model Evaluation* to try a ready-made CSV.
+
+**Before you start:** pick a model from the sidebar so evaluations and predictions use the correct model.
+"""
+    )
 
     # Model Overview cards in the main area
     st.markdown("### Model Overview")
